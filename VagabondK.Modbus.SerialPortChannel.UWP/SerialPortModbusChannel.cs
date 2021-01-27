@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using VagabondK.Modbus.Channels;
 using VagabondK.Modbus.Logging;
 using VagabondK.Modbus.Serialization;
 using Windows.Devices.Enumeration;
 using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
 
-namespace VagabondK.Modbus.Channels
+namespace VagabondK.Modbus.SerialPortChannel
 {
-    public class ModbusSerialChannel : ModbusChannel
+    public class SerialPortModbusChannel : ModbusChannel
     {
         public static void StartDeviceWatcher()
         {
@@ -35,13 +36,13 @@ namespace VagabondK.Modbus.Channels
 
         private static HashSet<string> serialDeviceIDs = new HashSet<string>();
         private static DeviceWatcher deviceWatcher = null;
-        private static Dictionary<int, WeakReference<ModbusSerialChannel>> instances = new Dictionary<int, WeakReference<ModbusSerialChannel>>();
+        private static Dictionary<int, WeakReference<SerialPortModbusChannel>> instances = new Dictionary<int, WeakReference<SerialPortModbusChannel>>();
 
-        private static void AddInstance(ModbusSerialChannel channelSerial)
+        private static void AddInstance(SerialPortModbusChannel channelSerial)
         {
             lock (instances)
             {
-                instances[channelSerial.GetHashCode()] = new WeakReference<ModbusSerialChannel>(channelSerial);
+                instances[channelSerial.GetHashCode()] = new WeakReference<SerialPortModbusChannel>(channelSerial);
             }
         }
 
@@ -80,7 +81,7 @@ namespace VagabondK.Modbus.Channels
         }
 
 
-        public ModbusSerialChannel(string portName, int baudRate, int dataBits, 
+        public SerialPortModbusChannel(string portName, int baudRate, int dataBits,
             SerialStopBitCount stopBitCount, SerialParity parity, SerialHandshake handshake,
             bool isDataTerminalReadyEnabled,
             bool isRequestToSendEnabled)
@@ -137,7 +138,7 @@ namespace VagabondK.Modbus.Channels
 
         public override string Description { get; protected set; }
 
-        ~ModbusSerialChannel()
+        ~SerialPortModbusChannel()
         {
             Dispose();
         }
@@ -339,6 +340,8 @@ namespace VagabondK.Modbus.Channels
             {
                 while (readBuffer.Count > 0)
                     yield return readBuffer.Dequeue();
+                if (dataReader.UnconsumedBufferLength > 0)
+                    dataReader.ReadBuffer(dataReader.UnconsumedBufferLength);
             }
         }
     }

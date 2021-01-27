@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{08571063-5679-4A96-9D9E-92B11CB4255C}</ProjectGuid>
+    <ProjectGuid>{E56C0730-A9DA-4A6F-92CD-473F824860A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VagabondK.Modbus</RootNamespace>
-    <AssemblyName>VagabondK.Modbus.UWP</AssemblyName>
+    <RootNamespace>VagabondK.Modbus.SerialPortChannel</RootNamespace>
+    <AssemblyName>VagabondK.Modbus.SerialPortChannel.UWP</AssemblyName>
     <DefaultLanguage>ko-KR</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.18362.0</TargetPlatformVersion>
@@ -120,9 +120,9 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Channels\ModbusSerialChannel.cs" />
+    <Compile Include="SerialPortModbusChannel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\VagabondK.Modbus.UWP.rd.xml" />
+    <EmbeddedResource Include="Properties\VagabondK.Modbus.SerialPortChannel.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
@@ -135,7 +135,6 @@
       <Name>VagabondK.Modbus</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

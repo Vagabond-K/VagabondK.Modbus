@@ -25,7 +25,7 @@
     https://go.microsoft.com/fwlink/?LinkID=391919를 방문하세요.
 -->
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
-  <Library Name="VagabondK.Modbus.UWP">
+  <Library Name="VagabondK.Modbus.SerialPortChannel.UWP">
 
   	<!-- 여기에 라이브러리에 대한 지시문 추가-->
 

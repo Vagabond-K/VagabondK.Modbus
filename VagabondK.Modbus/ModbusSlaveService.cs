@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using VagabondK.Modbus.Serialization;
 
 namespace VagabondK.Modbus
 {
-    public class ModbusSlaveService : Dictionary<ushort, ModbusSlave>, IDisposable
+    public class ModbusSlaveService : IDisposable, IEnumerable<KeyValuePair<ushort, ModbusSlave>>
     {
         public ModbusSlaveService()
         {
@@ -26,6 +27,24 @@ namespace VagabondK.Modbus
         }
 
         private ModbusSerializer serializer;
+        private readonly Dictionary<ushort, ModbusSlave> modbusSlaves = new Dictionary<ushort, ModbusSlave>();
+
+        public ModbusSlave this[ushort slaveAddress]
+        {
+            get => modbusSlaves[slaveAddress];
+            set
+            {
+                lock (this)
+                {
+                    modbusSlaves[slaveAddress] = value;
+                }
+            }
+        }
+
+        public ICollection<ushort> SlaveAddresses { get => modbusSlaves.Keys; }
+        public ICollection<ModbusSlave> ModbusSlaves { get => modbusSlaves.Values; }
+        public bool ContainsSlaveAddress(ushort slaveAddress) => modbusSlaves.ContainsKey(slaveAddress);
+        public bool TryGetValue(ushort slaveAddress, out ModbusSlave modbusSlave) => modbusSlaves.TryGetValue(slaveAddress, out modbusSlave);
 
         public ModbusSerializer Serializer
         {
@@ -206,25 +225,25 @@ namespace VagabondK.Modbus
         public event EventHandler<RequestWriteHoldingRegisterEventArgs> RequestWriteHoldingRegister;
 
         protected virtual void OnValidatingSlaveAddress(ValidatingSlaveAddressEventArgs e)
-            => e.IsValid = Count == 0 && e.SlaveAddress == 1 || ContainsKey(e.SlaveAddress);
+            => e.IsValid = modbusSlaves.Count == 0 && e.SlaveAddress == 1 || modbusSlaves.ContainsKey(e.SlaveAddress);
         protected virtual void OnRequestReadCoils(RequestReadBooleanEventArgs e) 
-            => e.Values = TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.Coils.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+            => e.Values = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.Coils.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         protected virtual void OnRequestReadDiscreteInputs(RequestReadBooleanEventArgs e)
-            => e.Values = TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.DiscreteInputs.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+            => e.Values = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.DiscreteInputs.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         protected virtual void OnRequestReadHoldingRegisters(RequestReadRegisterEventArgs e)
-            => e.Bytes = TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.HoldingRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+            => e.Bytes = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.HoldingRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         protected virtual void OnRequestReadInputRegisters(RequestReadRegisterEventArgs e)
-            => e.Bytes = TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.InputRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+            => e.Bytes = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) ? modbusSlave.InputRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         protected virtual void OnRequestWriteCoil(RequestWriteCoilEventArgs e)
         {
-            if (TryGetValue(e.SlaveAddress, out var modbusSlave))
+            if (modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave))
                 modbusSlave.Coils.SetData(e.Address, e.Values.ToArray());
             else
                 throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         }
         protected virtual void OnRequestWriteHoldingRegister(RequestWriteHoldingRegisterEventArgs e)
         {
-            if (TryGetValue(e.SlaveAddress, out var modbusSlave))
+            if (modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave))
                 modbusSlave.HoldingRegisters.SetRawData(e.Address, e.Bytes.ToArray());
             else
                 throw new ModbusException(ModbusExceptionCode.IllegalFunction);
@@ -286,6 +305,9 @@ namespace VagabondK.Modbus
 
             return eventArgs;
         }
+
+        public IEnumerator<KeyValuePair<ushort, ModbusSlave>> GetEnumerator() => modbusSlaves.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         class ChannelTask
         {
