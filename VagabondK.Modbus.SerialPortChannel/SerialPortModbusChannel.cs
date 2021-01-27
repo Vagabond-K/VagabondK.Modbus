@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using VagabondK.Modbus.Channels;
 using VagabondK.Modbus.Logging;
 
-namespace VagabondK.Modbus.SerialPortChannel
+namespace VagabondK.Modbus.Channels
 {
     public class SerialPortModbusChannel : ModbusChannel
     {

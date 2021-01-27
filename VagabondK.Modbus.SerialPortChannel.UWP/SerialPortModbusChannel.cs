@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using VagabondK.Modbus.Channels;
 using VagabondK.Modbus.Logging;
 using VagabondK.Modbus.Serialization;
 using Windows.Devices.Enumeration;
 using Windows.Devices.SerialCommunication;
 using Windows.Storage.Streams;
 
-namespace VagabondK.Modbus.SerialPortChannel
+namespace VagabondK.Modbus.Channels
 {
     public class SerialPortModbusChannel : ModbusChannel
     {

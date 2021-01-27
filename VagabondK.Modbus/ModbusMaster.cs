@@ -59,20 +59,12 @@ namespace VagabondK.Modbus
 
         public IModbusLogger Logger { get; set; }
 
-        private void OnModbusChannelCreated(object sender, ModbusChannelCreatedEventArgs e)
-        {
-            lock (this)
-            {
-                Channel?.Dispose();
-                Channel = e.Channel;
-                (Channel as ModbusChannel)?.ReadAllRemain();
-            }
-        }
-
         private void OnReceivedUnrecognizedMessage(object sender, UnrecognizedEventArgs e)
         {
             Logger?.Log(new UnrecognizedErrorLog(e.Channel, e.UnrecognizedMessage.ToArray()));
         }
+
+        protected virtual ModbusChannel OnSelectChannel(IReadOnlyList<ModbusChannel> channels) => channels?.LastOrDefault();
 
         public ModbusResponse Request(ModbusRequest request, int timeout)
         {
@@ -83,7 +75,7 @@ namespace VagabondK.Modbus
                 channel = Channel as ModbusChannel;
                 if (channel == null)
                 {
-                    channel = (Channel as IModbusChannelProvider)?.Channels?.LastOrDefault();
+                    channel = OnSelectChannel((Channel as ModbusChannelProvider)?.Channels);
                 }
             }
 

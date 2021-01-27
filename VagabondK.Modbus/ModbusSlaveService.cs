@@ -93,7 +93,7 @@ namespace VagabondK.Modbus
                     channelTasks[modbusChannel] = channelTask;
                     channelTask.Start();
                 }
-                else if (channel is IModbusChannelProvider channelProvider)
+                else if (channel is ModbusChannelProvider channelProvider)
                 {
                     channelProvider.Created += OnModbusChannelCreated;
                 }
@@ -113,7 +113,7 @@ namespace VagabondK.Modbus
                         channelTasks.Remove(modbusChannel);
                     }
                 }
-                else if (channel is IModbusChannelProvider channelProvider
+                else if (channel is ModbusChannelProvider channelProvider
                     && channels.Contains(channelProvider))
                 {
                     channelProvider.Created -= OnModbusChannelCreated;
@@ -139,7 +139,7 @@ namespace VagabondK.Modbus
             {
                 foreach (var channel in channels)
                 {
-                    if (channel is IModbusChannelProvider channelProvider
+                    if (channel is ModbusChannelProvider channelProvider
                         && channels.Contains(channelProvider))
                     {
                         channelProvider.Created -= OnModbusChannelCreated;
@@ -342,6 +342,8 @@ namespace VagabondK.Modbus
                                 modbusSlave.RemoveChannel(channel);
                             }
                         }
+                        if (!channel.IsDisposed)
+                            channel.Dispose();
                     });
                 }
             }

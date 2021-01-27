@@ -14,7 +14,8 @@ namespace SimpleModbusSlave
         {
             var logger = new ConsoleModbusLogger();
 
-            var channelProvider = new TcpServerModbusChannel(502)
+            var channelProvider = new TcpServerModbusChannelProvider(502)
+            //var channelProvider = new UdpServerModbusChannelProvider(502)
             {
                 Logger = logger
             };

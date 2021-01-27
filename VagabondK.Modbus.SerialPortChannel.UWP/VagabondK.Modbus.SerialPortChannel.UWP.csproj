@@ -7,7 +7,7 @@
     <ProjectGuid>{E56C0730-A9DA-4A6F-92CD-473F824860A6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VagabondK.Modbus.SerialPortChannel</RootNamespace>
+    <RootNamespace>VagabondK.Modbus.Channels</RootNamespace>
     <AssemblyName>VagabondK.Modbus.SerialPortChannel.UWP</AssemblyName>
     <DefaultLanguage>ko-KR</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>

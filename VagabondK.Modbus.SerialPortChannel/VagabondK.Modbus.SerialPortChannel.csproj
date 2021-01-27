@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;netcoreapp3.1</TargetFrameworks>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\VagabondK.Modbus.xml</DocumentationFile>
+    <RootNamespace>VagabondK.Modbus.Channels</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.IO.Ports" Version="5.0.0"/>
+    <PackageReference Include="System.IO.Ports" Version="5.0.0" />
   </ItemGroup>
 
 </Project>

@@ -10,34 +10,26 @@ using VagabondK.Modbus.Serialization;
 
 namespace VagabondK.Modbus.Channels
 {
-    public class TcpClientModbusChannel : ModbusChannel
+    public class UdpClientModbusChannel : ModbusChannel
     {
-        public TcpClientModbusChannel(string host, int port) : this(host, port, 10000) { }
-
-        public TcpClientModbusChannel(string host, int port, int connectTimeout)
+        public UdpClientModbusChannel(string host, int remotePort)
         {
             Host = host;
-            Port = port;
-            ConnectTimeout = connectTimeout;
+            RemotePort = remotePort;
         }
 
-        internal TcpClientModbusChannel(TcpServerModbusChannelProvider provider, TcpClient tcpClient)
+        public UdpClientModbusChannel(string host, int remotePort, int localPort)
         {
-            Guid = Guid.NewGuid();
-
-            this.provider = provider;
-            this.tcpClient = tcpClient;
-            Description = tcpClient.Client.RemoteEndPoint.ToString();
+            Host = host;
+            RemotePort = remotePort;
+            LocalPort = localPort;
         }
 
         public string Host { get; }
-        public int Port { get; }
-        public int ConnectTimeout { get; }
+        public int RemotePort { get; }
+        public int? LocalPort { get; }
 
-        internal Guid Guid { get; }
-        private readonly TcpServerModbusChannelProvider provider;
-
-        private TcpClient tcpClient = null;
+        private UdpClient udpClient = null;
         private readonly object connectLock = new object();
         private readonly object writeLock = new object();
         private readonly object readLock = new object();
@@ -49,7 +41,7 @@ namespace VagabondK.Modbus.Channels
 
         public override string Description { get; protected set; }
 
-        ~TcpClientModbusChannel()
+        ~UdpClientModbusChannel()
         {
             Dispose();
         }
@@ -58,7 +50,6 @@ namespace VagabondK.Modbus.Channels
         {
             if (!IsDisposed)
             {
-                provider?.channels?.Remove(Guid);
                 IsDisposed = true;
 
                 Close();
@@ -70,36 +61,24 @@ namespace VagabondK.Modbus.Channels
             lock (connectLock)
             {
                 Logger?.Log(new ChannelCloseEventLog(this));
-                tcpClient?.Close();
-                tcpClient = null;
+                udpClient?.Close();
+                udpClient = null;
             }
         }
 
         private void CheckConnection()
         {
-            if (provider != null) return;
-
             lock (connectLock)
             {
-                if (!IsDisposed && tcpClient == null)
+                if (!IsDisposed && udpClient == null)
                 {
-                    tcpClient = new TcpClient();
-                    try
-                    {
-                        Task task = tcpClient.ConnectAsync(Host ?? string.Empty, Port);
-                        if (!task.Wait(ConnectTimeout))
-                            throw new SocketException(10060);
+                    if (LocalPort != null)
+                        udpClient = new UdpClient(LocalPort.Value);
+                    else
+                        udpClient = new UdpClient();
 
-                        Description = tcpClient.Client.RemoteEndPoint.ToString();
-                        Logger?.Log(new ChannelOpenEventLog(this));
-                    }
-                    catch (Exception ex)
-                    {
-                        tcpClient?.Client?.Dispose();
-                        tcpClient = null;
-                        Logger?.Log(new CommErrorLog(this, ex));
-                        throw ex;
-                    }
+                    udpClient.Connect(Host ?? string.Empty, RemotePort);
+                    Description = udpClient.Client.RemoteEndPoint.ToString();
                 }
             }
         }
@@ -120,12 +99,12 @@ namespace VagabondK.Modbus.Channels
                             try
                             {
                                 CheckConnection();
-                                if (tcpClient != null)
+                                if (udpClient != null)
                                 {
                                     byte[] buffer = new byte[8192];
                                     while (true)
                                     {
-                                        int received = tcpClient.Client.Receive(buffer);
+                                        int received = udpClient.Client.Receive(buffer);
                                         lock (readBuffer)
                                         {
                                             for (int i = 0; i < received; i++)
@@ -160,8 +139,8 @@ namespace VagabondK.Modbus.Channels
             {
                 try
                 {
-                    if (tcpClient?.Client?.Connected == true)
-                        tcpClient?.Client?.Send(bytes);
+                    if (udpClient?.Client?.Connected == true)
+                        udpClient?.Client?.Send(bytes);
                 }
                 catch
                 {
@@ -197,7 +176,7 @@ namespace VagabondK.Modbus.Channels
                 while (readBuffer.Count > 0)
                     yield return readBuffer.Dequeue();
 
-                if (tcpClient == null)
+                if (udpClient == null)
                     yield break;
 
                 byte[] receivedBuffer = new byte[4096];
@@ -205,7 +184,7 @@ namespace VagabondK.Modbus.Channels
 
                 try
                 {
-                    available = tcpClient.Client.Available;
+                    available = udpClient.Client.Available;
                 }
                 catch { }
 
@@ -214,7 +193,7 @@ namespace VagabondK.Modbus.Channels
                     int received = 0;
                     try
                     {
-                        received = tcpClient.Client.Receive(receivedBuffer);
+                        received = udpClient.Client.Receive(receivedBuffer);
                     }
                     catch { }
                     for (int i = 0; i < received; i++)
@@ -222,7 +201,7 @@ namespace VagabondK.Modbus.Channels
 
                 try
                 {
-                    available = tcpClient.Client.Available;
+                    available = udpClient.Client.Available;
                 }
                 catch { }
                 }

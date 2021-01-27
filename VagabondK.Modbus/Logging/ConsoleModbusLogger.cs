@@ -11,19 +11,7 @@ namespace VagabondK.Modbus.Logging
 
         public void Log(ModbusLog log)
         {
-            if ((CategoryFilter & log.Category) == 0) return;
-
-            //if (log is ModbusMessageLog messageLog
-            //    && messageLog.RawMessage != null && messageLog.RawMessage.Length > 0)
-            //{
-            //    if (messageLog.Message is ModbusRequest)
-            //        Console.WriteLine($"Request: {BitConverter.ToString(messageLog.RawMessage)}");
-            //    else if (messageLog.Message is ModbusResponse)
-            //        Console.WriteLine($"Response: {BitConverter.ToString(messageLog.RawMessage)}");
-            //    else
-            //        Console.WriteLine(log);
-            //}
-            //else
+            if ((CategoryFilter & log.Category) != 0)
                 Console.WriteLine(log);
         }
     }

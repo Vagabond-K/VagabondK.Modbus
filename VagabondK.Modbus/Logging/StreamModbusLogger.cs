@@ -26,20 +26,13 @@ namespace VagabondK.Modbus.Logging
 
         public void Log(ModbusLog log)
         {
-            if ((CategoryFilter & log.Category) == 0) return;
+            if ((CategoryFilter & log.Category) != 0)
+                WriteToStream(streamWriter, log);
+        }
 
-            if (log is ModbusMessageLog messageLog
-            && messageLog.RawMessage != null && messageLog.RawMessage.Length > 0)
-            {
-                if (messageLog.Message is ModbusRequest)
-                    streamWriter.WriteLine($"Request: {BitConverter.ToString(messageLog.RawMessage)}");
-                else if (messageLog.Message is ModbusResponse)
-                    streamWriter.WriteLine($"Response: {BitConverter.ToString(messageLog.RawMessage)}");
-                else
-                    streamWriter.WriteLine(log);
-            }
-            else
-                streamWriter.WriteLine(log);
+        protected virtual void WriteToStream(StreamWriter writer, ModbusLog log)
+        {
+            writer.WriteLine(log);
         }
     }
 }

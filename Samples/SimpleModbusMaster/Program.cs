@@ -18,6 +18,7 @@ namespace SimpleModbusMaster
             var modbusMaster = new ModbusMaster
             {
                 Channel = new TcpClientModbusChannel("127.0.0.1", 502, 1000)
+                //Channel = new UdpClientModbusChannel("127.0.0.1", 502)
                 {
                     Logger = logger
                 },
