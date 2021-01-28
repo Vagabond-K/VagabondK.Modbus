@@ -19,6 +19,13 @@ namespace VagabondK.Modbus.Data
 
         public abstract IEnumerator<TData> GetEnumerator();
 
+        internal void AlignRawDataArray()
+        {
+            var rawDataLength = Count * NumberOfUnit;
+            if (rawDataLength > rawData.Length)
+                Array.Resize(ref rawData, rawDataLength);
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

@@ -116,20 +116,20 @@ namespace VagabondK.Modbus
             Bytes = bytes ?? throw new ArgumentException(nameof(bytes));
         }
 
-        private IReadOnlyList<ushort> registers;
+        private IReadOnlyList<ushort> values;
 
         public IReadOnlyList<byte> Bytes { get; }
 
-        public IReadOnlyList<ushort> Registers
+        public IReadOnlyList<ushort> Values
         {
             get
             {
-                if (registers == null)
+                if (values == null)
                 {
                     var bytes = Bytes;
-                    registers = Enumerable.Range(0, bytes.Count / 2).Select(i => (ushort)(bytes[i * 2] << 8 | bytes[i * 2 + 1])).ToArray();
+                    values = Enumerable.Range(0, bytes.Count / 2).Select(i => (ushort)(bytes[i * 2] << 8 | bytes[i * 2 + 1])).ToArray();
                 }
-                return registers;
+                return values;
             }
         }
 

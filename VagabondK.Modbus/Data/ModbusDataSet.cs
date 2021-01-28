@@ -211,6 +211,7 @@ namespace VagabondK.Modbus.Data
 
             if (dataBlocks.Count == 0)
             {
+                newDataBlock.AlignRawDataArray();
                 dataBlocks.Add(newDataBlock);
             }
             else
@@ -268,6 +269,7 @@ namespace VagabondK.Modbus.Data
 
                         if (!merged)
                         {
+                            newDataBlock.AlignRawDataArray();
                             dataBlocks.Insert(index, newDataBlock);
                         }
                     }

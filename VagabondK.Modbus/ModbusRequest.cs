@@ -149,10 +149,10 @@ namespace VagabondK.Modbus
 
     public class ModbusWriteHoldingRegisterRequest : ModbusWriteRequest
     {
-        public ModbusWriteHoldingRegisterRequest(byte slaveAddress, ushort address, ushort register)
+        public ModbusWriteHoldingRegisterRequest(byte slaveAddress, ushort address, ushort value)
             : base(slaveAddress, ModbusFunction.WriteSingleHoldingRegister, address)
         {
-            Bytes = new List<byte> { (byte)((register >> 8) & 0xff), (byte)(register & 0xff) };
+            Bytes = new List<byte> { (byte)((value >> 8) & 0xff), (byte)(value & 0xff) };
         }
 
         public ModbusWriteHoldingRegisterRequest(byte slaveAddress, ushort address, IEnumerable<byte> bytes)
@@ -161,10 +161,10 @@ namespace VagabondK.Modbus
             Bytes = bytes as List<byte> ?? bytes.ToList();
         }
 
-        public ModbusWriteHoldingRegisterRequest(byte slaveAddress, ushort address, IEnumerable<ushort> registers)
+        public ModbusWriteHoldingRegisterRequest(byte slaveAddress, ushort address, IEnumerable<ushort> values)
             : base(slaveAddress, ModbusFunction.WriteMultipleHoldingRegisters, address)
         {
-            Bytes = registers.SelectMany(register => new byte[] { (byte)((register >> 8) & 0xff), (byte)(register & 0xff) }).ToList();
+            Bytes = values.SelectMany(register => new byte[] { (byte)((register >> 8) & 0xff), (byte)(register & 0xff) }).ToList();
         }
 
         public ushort SingleRegisterValue => Bytes.Count >= 2 ?
