@@ -191,6 +191,7 @@ namespace VagabondK.Modbus
                 case ModbusFunction.WriteSingleCoil:
                 case ModbusFunction.WriteMultipleHoldingRegisters:
                 case ModbusFunction.WriteSingleHoldingRegister:
+                    break;
                 default:
                     throw new ArgumentException("The Function in the request does not match.", nameof(request));
             }

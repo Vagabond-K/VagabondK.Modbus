@@ -67,8 +67,11 @@ namespace VagabondK.Modbus.Channels
         {
             lock (openLock)
             {
-                Logger?.Log(new ChannelCloseEventLog(this));
-                SerialPort?.Dispose();
+                if (SerialPort.IsOpen)
+                {
+                    Logger?.Log(new ChannelCloseEventLog(this));
+                    SerialPort?.Close();
+                }
             }
         }
 

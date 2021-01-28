@@ -195,7 +195,7 @@ namespace VagabondK.Modbus
                     case ModbusFunction.WriteSingleHoldingRegister:
                     case ModbusFunction.WriteMultipleHoldingRegisters:
                         OnRequestWriteHoldingRegister((ModbusWriteHoldingRegisterRequest)request, channel);
-                        response = new ModbusWriteResponse((ModbusWriteCoilRequest)request);
+                        response = new ModbusWriteResponse((ModbusWriteHoldingRegisterRequest)request);
                         break;
                 }
             }
@@ -330,14 +330,17 @@ namespace VagabondK.Modbus
                     {
                         while (isRunning && !channel.IsDisposed)
                         {
-                            RequestBuffer buffer = new RequestBuffer(modbusSlave, channel);
-                            var request = modbusSlave.Serializer.Deserialize(buffer);
-                            if (request != null)
+                            try
                             {
-                                modbusSlave.Logger?.Log(new ModbusMessageLog(channel, request, buffer.ToArray()));
-                                modbusSlave.OnReceivedModbusRequest(channel, request);
+                                RequestBuffer buffer = new RequestBuffer(modbusSlave, channel);
+                                var request = modbusSlave.Serializer.Deserialize(buffer);
+                                if (request != null)
+                                {
+                                    modbusSlave.Logger?.Log(new ModbusMessageLog(channel, request, buffer.ToArray()));
+                                    modbusSlave.OnReceivedModbusRequest(channel, request);
+                                }
                             }
-                            if (channel.IsDisposed)
+                            catch
                             {
                                 modbusSlave.RemoveChannel(channel);
                             }

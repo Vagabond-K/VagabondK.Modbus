@@ -49,6 +49,11 @@ namespace VagabondK.Modbus.Serialization
                 yield return byte.Parse(Encoding.ASCII.GetString(bytes, i * 2, 2), System.Globalization.NumberStyles.HexNumber, null);
         }
 
+        internal ushort ToUInt16(ResponseBuffer buffer, int index, int timeout)
+        {
+            return ToUInt16(Read(buffer, index, 2, timeout).ToArray(), 0);
+        }
+
         internal override ModbusResponse DeserializeResponse(ResponseBuffer buffer, ModbusRequest request, int timeout)
         {
             ModbusResponse result = null;
@@ -201,7 +206,7 @@ namespace VagabondK.Modbus.Serialization
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseSlaveAddressDoNotMatch, buffer, request);
             if ((Read(buffer, 1, timeout) & 0x7f) != (byte)request.Function)
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseFunctionDoNotMatch, buffer, request);
-            if (ToUInt16(buffer, 2) != request.Address)
+            if (ToUInt16(buffer, 2, timeout) != request.Address)
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseAddressDoNotMatch, buffer, request);
 
             switch (request.Function)
@@ -212,7 +217,7 @@ namespace VagabondK.Modbus.Serialization
                         return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseWritedValueDoNotMatch, buffer, request);
                     break;
                 case ModbusFunction.WriteMultipleCoils:
-                    if (ToUInt16(buffer, 4) != request.Length)
+                    if (ToUInt16(buffer, 4, timeout) != request.Length)
                         return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseWritedLengthDoNotMatch, buffer, request);
                     break;
             }
@@ -232,10 +237,10 @@ namespace VagabondK.Modbus.Serialization
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseSlaveAddressDoNotMatch, buffer, request);
             if ((Read(buffer, 1, timeout) & 0x7f) != (byte)request.Function)
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseFunctionDoNotMatch, buffer, request);
-            if (ToUInt16(buffer, 2) != request.Address)
+            if (ToUInt16(buffer, 2, timeout) != request.Address)
                 return new ModbusCommErrorResponse(ModbusCommErrorCode.ResponseAddressDoNotMatch, buffer, request);
 
-            ushort value = ToUInt16(buffer, 4);
+            ushort value = ToUInt16(buffer, 4, timeout);
 
             switch (request.Function)
             {
@@ -336,7 +341,7 @@ namespace VagabondK.Modbus.Serialization
                                             result = new ModbusReadRequest(slaveAddress, (ModbusObjectType)(byte)function, address, valueOrLength);
                                             break;
                                         case ModbusFunction.WriteSingleCoil:
-                                            if (valueOrLength != 0xff00 || valueOrLength != 0)
+                                            if (valueOrLength != 0xff00 && valueOrLength != 0)
                                                 result = new ModbusWriteCoilRequest(slaveAddress, address);
                                             else
                                                 result = new ModbusWriteCoilRequest(slaveAddress, address, valueOrLength == 0xff00);

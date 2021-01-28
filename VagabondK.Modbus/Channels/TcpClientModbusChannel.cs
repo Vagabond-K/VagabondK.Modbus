@@ -69,9 +69,12 @@ namespace VagabondK.Modbus.Channels
         {
             lock (connectLock)
             {
-                Logger?.Log(new ChannelCloseEventLog(this));
-                tcpClient?.Close();
-                tcpClient = null;
+                if (tcpClient != null)
+                {
+                    Logger?.Log(new ChannelCloseEventLog(this));
+                    tcpClient.Close();
+                    tcpClient = null;
+                }
             }
         }
 

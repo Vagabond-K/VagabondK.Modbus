@@ -60,9 +60,12 @@ namespace VagabondK.Modbus.Channels
         {
             lock (connectLock)
             {
-                Logger?.Log(new ChannelCloseEventLog(this));
-                udpClient?.Close();
-                udpClient = null;
+                if (udpClient != null)
+                {
+                    Logger?.Log(new ChannelCloseEventLog(this));
+                    udpClient?.Close();
+                    udpClient = null;
+                }
             }
         }
 

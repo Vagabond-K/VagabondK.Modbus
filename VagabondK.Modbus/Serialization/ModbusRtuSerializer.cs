@@ -266,7 +266,7 @@ namespace VagabondK.Modbus.Serialization
                                         result = new ModbusReadRequest(slaveAddress, (ModbusObjectType)(byte)function, address, valueOrLength);
                                         break;
                                     case ModbusFunction.WriteSingleCoil:
-                                        if (valueOrLength != 0xff00 || valueOrLength != 0)
+                                        if (valueOrLength != 0xff00 && valueOrLength != 0)
                                             result = new ModbusWriteCoilRequest(slaveAddress, address);
                                         else
                                             result = new ModbusWriteCoilRequest(slaveAddress, address, valueOrLength == 0xff00);
