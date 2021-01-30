@@ -33,12 +33,7 @@ namespace VagabondK.Modbus.Serialization
         internal override IEnumerable<byte> OnSerialize(IModbusMessage message)
         {
             if (message is ModbusRequest request)
-            {
-                request.TransactionID = transactionID;
-
-                if (transactionID == 65535) transactionID = 0;
-                else transactionID++;
-            }
+                request.TransactionID = transactionID++;
 
             var messageArray = message.Serialize().ToArray();
             int messageLength = messageArray.Length;

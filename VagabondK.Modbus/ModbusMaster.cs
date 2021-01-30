@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VagabondK.Modbus.Channels;
+using VagabondK.Modbus.Data;
 using VagabondK.Modbus.Logging;
 using VagabondK.Modbus.Serialization;
 
@@ -123,57 +124,5 @@ namespace VagabondK.Modbus
 
             return result;
         }
-
-        public bool[] ReadCoils(byte slaveAddress, ushort address, ushort length) => ReadCoils(slaveAddress, address, length, Timeout);
-        public bool[] ReadDiscreteInputs(byte slaveAddress, ushort address, ushort length) => ReadDiscreteInputs(slaveAddress, address, length, Timeout);
-        public ushort[] ReadHoldingRegisters(byte slaveAddress, ushort address, ushort length) => ReadHoldingRegisters(slaveAddress, address, length, Timeout);
-        public ushort[] ReadInputRegisters(byte slaveAddress, ushort address, ushort length) => ReadInputRegisters(slaveAddress, address, length, Timeout);
-        public void WriteCoils(byte slaveAddress, ushort address, IEnumerable<bool> values) => WriteCoils(slaveAddress, address, values, Timeout);
-        public void WriteHoldingRegisters(byte slaveAddress, ushort address, IEnumerable<ushort> values) => WriteHoldingRegisters(slaveAddress, address, values, Timeout);
-
-        public bool? ReadCoil(byte slaveAddress, ushort address) => ReadCoil(slaveAddress, address, Timeout);
-        public bool? ReadDiscreteInput(byte slaveAddress, ushort address) => ReadDiscreteInput(slaveAddress, address, Timeout);
-        public ushort? ReadHoldingRegister(byte slaveAddress, ushort address) => ReadHoldingRegister(slaveAddress, address, Timeout);
-        public ushort? ReadInputRegister(byte slaveAddress, ushort address) => ReadInputRegister(slaveAddress, address, Timeout);
-        public void WriteCoil(byte slaveAddress, ushort address, bool value) => WriteCoil(slaveAddress, address, value, Timeout);
-        public void WriteHoldingRegister(byte slaveAddress, ushort address, ushort value) => WriteHoldingRegister(slaveAddress, address, value, Timeout);
-
-
-        public bool[] ReadCoils(byte slaveAddress, ushort address, ushort length, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.Coil, address, length)) as ModbusReadBooleanResponse)?.Values?.ToArray();
-
-        public bool[] ReadDiscreteInputs(byte slaveAddress, ushort address, ushort length, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.DiscreteInput, address, length)) as ModbusReadBooleanResponse)?.Values?.ToArray();
-
-        public ushort[] ReadHoldingRegisters(byte slaveAddress, ushort address, ushort length, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.HoldingRegister, address, length)) as ModbusReadRegisterResponse)?.Values?.ToArray();
-
-        public ushort[] ReadInputRegisters(byte slaveAddress, ushort address, ushort length, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.InputRegister, address, length)) as ModbusReadRegisterResponse)?.Values?.ToArray();
-
-        public void WriteCoils(byte slaveAddress, ushort address, IEnumerable<bool> values, int timeout)
-            => Request(new ModbusWriteCoilRequest(slaveAddress, address, values));
-
-        public void WriteHoldingRegisters(byte slaveAddress, ushort address, IEnumerable<ushort> values, int timeout)
-            => Request(new ModbusWriteHoldingRegisterRequest(slaveAddress, address, values));
-
-
-        public bool? ReadCoil(byte slaveAddress, ushort address, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.Coil, address, 1)) as ModbusReadBooleanResponse)?.Values?.FirstOrDefault();
-
-        public bool? ReadDiscreteInput(byte slaveAddress, ushort address, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.DiscreteInput, address, 1)) as ModbusReadBooleanResponse)?.Values?.FirstOrDefault();
-
-        public ushort? ReadHoldingRegister(byte slaveAddress, ushort address, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.HoldingRegister, address, 1)) as ModbusReadRegisterResponse)?.Values?.FirstOrDefault();
-
-        public ushort? ReadInputRegister(byte slaveAddress, ushort address, int timeout)
-            => (Request(new ModbusReadRequest(slaveAddress, ModbusObjectType.InputRegister, address, 1)) as ModbusReadRegisterResponse)?.Values?.FirstOrDefault();
-
-        public void WriteCoil(byte slaveAddress, ushort address, bool value, int timeout)
-            => Request(new ModbusWriteCoilRequest(slaveAddress, address, value));
-
-        public void WriteHoldingRegister(byte slaveAddress, ushort address, ushort value, int timeout)
-            => Request(new ModbusWriteHoldingRegisterRequest(slaveAddress, address, value));
     }
 }

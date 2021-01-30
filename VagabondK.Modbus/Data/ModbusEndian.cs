@@ -88,14 +88,5 @@ namespace VagabondK.Modbus.Data
 
             return bytes;
         }
-
-
-        private byte GetByte(IReadOnlyList<byte> bytes, int index)
-        {
-            if (index < bytes.Count)
-                return bytes[index];
-            else
-                return 0;
-        }
     }
 }

@@ -160,8 +160,8 @@ namespace VagabondK.Modbus
             return Bytes.Skip((address - Request.Address) * 2).Take(rawDataCount);
         }
 
-        public short GetInt16(ushort address) => GetInt16(address, new ModbusEndian(true));
-        public ushort GetUInt16(ushort address) => GetUInt16(address, new ModbusEndian(true));
+        public short GetInt16(ushort address) => GetInt16(address, true);
+        public ushort GetUInt16(ushort address) => GetUInt16(address, true);
         public int GetInt32(ushort address) => GetInt32(address, new ModbusEndian(true));
         public uint GetUInt32(ushort address) => GetUInt32(address, new ModbusEndian(true));
         public long GetInt64(ushort address) => GetInt64(address, new ModbusEndian(true));
@@ -169,16 +169,14 @@ namespace VagabondK.Modbus
         public float GetSingle(ushort address) => GetSingle(address, new ModbusEndian(true));
         public double GetDouble(ushort address) => GetDouble(address, new ModbusEndian(true));
 
-        public short GetInt16(ushort address, ModbusEndian endian) => BitConverter.ToInt16(endian.Sort(GetRawData(address, 2).ToArray()), 0);
-        public ushort GetUInt16(ushort address, ModbusEndian endian) => BitConverter.ToUInt16(endian.Sort(GetRawData(address, 2).ToArray()), 0);
+        public short GetInt16(ushort address, bool isBigEndian) => BitConverter.ToInt16(new ModbusEndian(isBigEndian).Sort(GetRawData(address, 2).ToArray()), 0);
+        public ushort GetUInt16(ushort address, bool isBigEndian) => BitConverter.ToUInt16(new ModbusEndian(isBigEndian).Sort(GetRawData(address, 2).ToArray()), 0);
         public int GetInt32(ushort address, ModbusEndian endian) => BitConverter.ToInt32(endian.Sort(GetRawData(address, 4).ToArray()), 0);
         public uint GetUInt32(ushort address, ModbusEndian endian) => BitConverter.ToUInt32(endian.Sort(GetRawData(address, 4).ToArray()), 0);
         public long GetInt64(ushort address, ModbusEndian endian) => BitConverter.ToInt64(endian.Sort(GetRawData(address, 8).ToArray()), 0);
         public ulong GetUInt64(ushort address, ModbusEndian endian) => BitConverter.ToUInt64(endian.Sort(GetRawData(address, 8).ToArray()), 0);
         public float GetSingle(ushort address, ModbusEndian endian) => BitConverter.ToSingle(endian.Sort(GetRawData(address, 4).ToArray()), 0);
         public double GetDouble(ushort address, ModbusEndian endian) => BitConverter.ToDouble(endian.Sort(GetRawData(address, 8).ToArray()), 0);
-
-
     }
 
     public class ModbusWriteResponse : ModbusOkResponse<ModbusWriteRequest>

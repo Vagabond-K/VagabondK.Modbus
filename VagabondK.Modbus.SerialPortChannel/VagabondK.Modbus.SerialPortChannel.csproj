@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;netcoreapp3.0</TargetFrameworks>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\VagabondK.Modbus.xml</DocumentationFile>
     <RootNamespace>VagabondK.Modbus.Channels</RootNamespace>
   </PropertyGroup>
@@ -14,7 +14,7 @@
     <PackageReference Include="SerialPortStream" Version="2.2.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="System.IO.Ports" Version="5.0.0" />
   </ItemGroup>
 
