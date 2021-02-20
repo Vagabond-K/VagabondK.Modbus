@@ -11,9 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleModbusMaster", "Sampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleModbusSlave", "Samples\SimpleModbusSlave\SimpleModbusSlave.csproj", "{900733B7-27B9-4543-A778-5ADA7D40FC58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VagabondK.Modbus.SerialPortChannel", "VagabondK.Modbus.SerialPortChannel\VagabondK.Modbus.SerialPortChannel.csproj", "{C37346A0-3F4A-40A9-B81F-4EFBF56AFEAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VagabondK.Modbus.SerialPortChannel", "VagabondK.Modbus.SerialPortChannel\VagabondK.Modbus.SerialPortChannel.csproj", "{C37346A0-3F4A-40A9-B81F-4EFBF56AFEAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VagabondK.Modbus.SerialPortChannel.UWP", "VagabondK.Modbus.SerialPortChannel.UWP\VagabondK.Modbus.SerialPortChannel.UWP.csproj", "{E56C0730-A9DA-4A6F-92CD-473F824860A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{994DF0FF-56F1-4DAF-961E-17700B837CAD}"
+	ProjectSection(SolutionItems) = preProject
+		VagabondK.Modbus.SerialPortChannel.nuspec = VagabondK.Modbus.SerialPortChannel.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

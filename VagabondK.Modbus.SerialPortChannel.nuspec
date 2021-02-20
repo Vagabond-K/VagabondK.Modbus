@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>VagabondK.Modbus.SerialPortChannel</id>
+    <version>1.0.0</version>
+    <authors>Vagabond K</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">LGPL-2.1-only</license>
+    <icon>nugetIcon.png</icon>
+    <projectUrl>https://github.com/Vagabond-K/VagabondK.Modbus</projectUrl>
+    <description>Vagabond K의 Modbus 라이브러리를 시리얼 통신으로 사용할 때 필요한 어셈블리입니다.</description>
+    <repository type="git" url="https://github.com/Vagabond-K/VagabondK.Modbus" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETFramework4.6.1">
+        <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="UAP10.0.16299">
+        <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\netstandard2.0\VagabondK.Modbus.SerialPortChannel.dll" target="lib\netstandard2.0"/>
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\netstandard2.0\VagabondK.Modbus.SerialPortChannel.xml" target="lib\netstandard2.0"/>
+
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\netcoreapp3.1\VagabondK.Modbus.SerialPortChannel.dll" target="lib\netcoreapp3.1"/>
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\netcoreapp3.1\VagabondK.Modbus.SerialPortChannel.xml" target="lib\netcoreapp3.1"/>
+
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\net461\VagabondK.Modbus.SerialPortChannel.dll" target="lib\net461"/>
+    <file src="VagabondK.Modbus.SerialPortChannel\bin\Release\net461\VagabondK.Modbus.SerialPortChannel.xml" target="lib\net461"/>
+
+    <file src="VagabondK.Modbus.SerialPortChannel.UWP\bin\Release\VagabondK.Modbus.SerialPortChannel.dll" target="lib\uap10.0.16299"/>
+    <file src="VagabondK.Modbus.SerialPortChannel.UWP\bin\Release\VagabondK.Modbus.SerialPortChannel.xml" target="lib\uap10.0.16299"/>
+
+    <file src="nugetIcon.png"/>
+  </files>
+</package>

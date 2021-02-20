@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // 제어됩니다. 어셈블리와 관련된 정보를 수정하려면
 // 이러한 특성 값을 변경하세요.
 [assembly: AssemblyTitle("VagabondK.Modbus.SerialPortChannel.UWP")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Vagabond K의 Modbus 라이브러리를 UWP 기반 시리얼 통신으로 사용할 때 필요한 어셈블리입니다.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Vagabond K")]
 [assembly: AssemblyProduct("VagabondK.Modbus.SerialPortChannel.UWP")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © Vagabond K 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
