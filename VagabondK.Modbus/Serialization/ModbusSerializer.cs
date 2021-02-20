@@ -5,6 +5,9 @@ using VagabondK.Modbus.Channels;
 
 namespace VagabondK.Modbus.Serialization
 {
+    /// <summary>
+    /// Modbus Serializer
+    /// </summary>
     public abstract class ModbusSerializer
     {
         internal event EventHandler<UnrecognizedEventArgs> Unrecognized;
@@ -12,6 +15,11 @@ namespace VagabondK.Modbus.Serialization
         internal void RaiseUnrecognized(IModbusChannel channel, IReadOnlyList<byte> errorMessage)
             => Unrecognized?.Invoke(this, new UnrecognizedEventArgs(channel, errorMessage));
 
+        /// <summary>
+        /// Modbus 메시지 직렬화
+        /// </summary>
+        /// <param name="message">Modbus 메시지</param>
+        /// <returns>직렬화 된 바이트 열거</returns>
         public IEnumerable<byte> Serialize(IModbusMessage message)
         {
             if (message is ModbusCommErrorResponse commErrorResponse)

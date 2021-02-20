@@ -12,8 +12,19 @@ using VagabondK.Modbus.Logging;
 
 namespace VagabondK.Modbus.Channels
 {
+    /// <summary>
+    /// Serial 포트 Modbus 채널
+    /// </summary>
     public class SerialPortModbusChannel : ModbusChannel
     {
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="portName">포트 이름</param>
+        /// <param name="baudRate">Baud Rate</param>
+        /// <param name="dataBits">Data Bits</param>
+        /// <param name="stopBits">Stop Bits</param>
+        /// <param name="parity">Parity</param>
 #if NETSTANDARD2_0
         public SerialPortModbusChannel(string portName, int baudRate, int dataBits, StopBits stopBits, Parity parity)
         {
@@ -35,24 +46,71 @@ namespace VagabondK.Modbus.Channels
         private readonly EventWaitHandle readEventWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private bool isRunningReceive = false;
 
+        /// <summary>
+        /// Serial 포트
+        /// </summary>
 #if NETSTANDARD2_0
         public SerialPortStream SerialPort { get; }
 #else
         public SerialPort SerialPort { get; }
 #endif
 
+        /// <summary>
+        /// 포트 이름
+        /// </summary>
+        public string PortName { get => SerialPort.PortName; }
+
+        /// <summary>
+        /// Baud Rate
+        /// </summary>
+        public int BaudRate { get => SerialPort.BaudRate; }
+
+        /// <summary>
+        /// Data Bits
+        /// </summary>
+        public int DataBits { get => SerialPort.DataBits; }
+
+        /// <summary>
+        /// Stop Bits
+        /// </summary>
+        public StopBits StopBits { get; }
+
+        /// <summary>
+        /// Parity
+        /// </summary>
+        public Parity Parity { get; }
+
+        /// <summary>
+        /// DTR 활성화 여부
+        /// </summary>
         public bool DtrEnable { get => SerialPort.DtrEnable; set => SerialPort.DtrEnable = value; }
+
+        /// <summary>
+        /// RTS 활성화 여부
+        /// </summary>
         public bool RtsEnable { get => SerialPort.RtsEnable; set => SerialPort.RtsEnable = value; }
 
+        /// <summary>
+        /// 리소스 해제 여부
+        /// </summary>
         public override bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// 채널 설명
+        /// </summary>
         public override string Description { get; protected set; }
 
+        /// <summary>
+        /// 소멸자
+        /// </summary>
         ~SerialPortModbusChannel()
         {
             Dispose();
         }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public override void Dispose()
         {
             if (!IsDisposed)
@@ -145,6 +203,10 @@ namespace VagabondK.Modbus.Channels
                 return null;
         }
 
+        /// <summary>
+        /// 바이트 배열 쓰기
+        /// </summary>
+        /// <param name="bytes">바이트 배열</param>
         public override void Write(byte[] bytes)
         {
             CheckPort();
@@ -168,6 +230,11 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 1 바이트 읽기
+        /// </summary>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트</returns>
         public override byte Read(int timeout)
         {
             lock (readLock)
@@ -176,6 +243,12 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 여러 개의 바이트 읽기
+        /// </summary>
+        /// <param name="count">읽을 개수</param>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> Read(uint count, int timeout)
         {
             lock (readLock)
@@ -187,6 +260,10 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 채널에 남아있는 모든 바이트 읽기
+        /// </summary>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> ReadAllRemain()
         {
             lock (readLock)

@@ -10,24 +10,48 @@ using VagabondK.Modbus.Logging;
 
 namespace VagabondK.Modbus.Channels
 {
+    /// <summary>
+    /// TCP 서버 기반 Modbus 채널 공급자
+    /// </summary>
     public class TcpServerModbusChannelProvider : ModbusChannelProvider
     {
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        public TcpServerModbusChannelProvider() : this(502) { }
+
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="port">TCP 연결 수신 포트</param>
         public TcpServerModbusChannelProvider(int port)
         {
             Port = port;
             tcpListener = new TcpListener(IPAddress.Any, Port);
         }
 
+        /// <summary>
+        /// TCP 연결 수신 포트
+        /// </summary>
         public int Port { get; }
 
         private readonly TcpListener tcpListener;
         internal readonly Dictionary<Guid, WeakReference<TcpClientModbusChannel>> channels = new Dictionary<Guid, WeakReference<TcpClientModbusChannel>>();
         private CancellationTokenSource cancellationTokenSource;
 
+        /// <summary>
+        /// 연결 요청 들어온 TCP 클라이언트 채널 목록
+        /// </summary>
         public override IReadOnlyList<ModbusChannel> Channels { get => channels.Values.Select(w => w.TryGetTarget(out var channel) ? channel : null).Where(c => c != null).ToList(); }
 
+        /// <summary>
+        /// 채널 공급자 설명
+        /// </summary>
         public override string Description { get => tcpListener?.LocalEndpoint?.ToString(); }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public override void Dispose()
         {
             lock (this)
@@ -40,6 +64,9 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// TCP 서버 수신 시작
+        /// </summary>
         public override void Start()
         {
             lock (this)
@@ -68,6 +95,9 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// TCP 서버 수신 정지
+        /// </summary>
         public override void Stop()
         {
             lock (this)

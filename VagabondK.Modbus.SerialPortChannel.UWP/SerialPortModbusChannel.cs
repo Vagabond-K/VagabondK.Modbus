@@ -12,8 +12,14 @@ using Windows.Storage.Streams;
 
 namespace VagabondK.Modbus.Channels
 {
+    /// <summary>
+    /// Serial 포트 Modbus 채널
+    /// </summary>
     public class SerialPortModbusChannel : ModbusChannel
     {
+        /// <summary>
+        /// Serial 디바이스 감시 시작
+        /// </summary>
         public static void StartDeviceWatcher()
         {
             //DeviceInformationCollection infoList = DeviceInformation.FindAllAsync(SerialDevice.GetDeviceSelector()).AsTask().Result;
@@ -80,19 +86,24 @@ namespace VagabondK.Modbus.Channels
         }
 
 
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="portName">포트 이름</param>
+        /// <param name="baudRate">Baud Rate</param>
+        /// <param name="dataBits">Data Bits</param>
+        /// <param name="stopBits">Stop Bits</param>
+        /// <param name="parity">Parity</param>
+        /// <param name="handshake">ㅗandshake</param>
         public SerialPortModbusChannel(string portName, int baudRate, int dataBits,
-            SerialStopBitCount stopBitCount, SerialParity parity, SerialHandshake handshake,
-            bool isDataTerminalReadyEnabled,
-            bool isRequestToSendEnabled)
+            SerialStopBitCount stopBits, SerialParity parity, SerialHandshake handshake)
         {
             PortName = portName;
-            BaudRate = (uint)baudRate;
-            DataBits = (ushort)dataBits;
-            StopBitCount = stopBitCount;
+            BaudRate = baudRate;
+            DataBits = dataBits;
+            StopBits = stopBits;
             Parity = parity;
             Handshake = handshake;
-            IsDataTerminalReadyEnabled = isDataTerminalReadyEnabled;
-            IsRequestToSendEnabled = isRequestToSendEnabled;
 
             Description = PortName;
 
@@ -110,17 +121,45 @@ namespace VagabondK.Modbus.Channels
             AddInstance(this);
         }
 
+        /// <summary>
+        /// 포트 이름
+        /// </summary>
         public string PortName { get; }
 
-        public uint BaudRate { get; }
-        public ushort DataBits { get; }
-        public SerialStopBitCount StopBitCount { get; }
+        /// <summary>
+        /// Baud Rate
+        /// </summary>
+        public int BaudRate { get; }
 
+        /// <summary>
+        /// Data Bits
+        /// </summary>
+        public int DataBits { get; }
+
+        /// <summary>
+        /// Stop Bits
+        /// </summary>
+        public SerialStopBitCount StopBits { get; }
+
+        /// <summary>
+        /// Parity
+        /// </summary>
         public SerialParity Parity { get; }
+
+        /// <summary>
+        /// Handshake
+        /// </summary>
         public SerialHandshake Handshake { get; }
 
-        public bool IsDataTerminalReadyEnabled { get; }
-        public bool IsRequestToSendEnabled { get; }
+        /// <summary>
+        /// DTR 활성화 여부
+        /// </summary>
+        public bool DtrEnable { get => serialDevice.IsDataTerminalReadyEnabled; set => serialDevice.IsDataTerminalReadyEnabled = value; }
+
+        /// <summary>
+        /// RTS 활성화 여부
+        /// </summary>
+        public bool RtsEnable { get => serialDevice.IsRequestToSendEnabled; set => serialDevice.IsRequestToSendEnabled = value; }
 
         private SerialDevice serialDevice = null;
         private DataReader dataReader = null;
@@ -133,15 +172,27 @@ namespace VagabondK.Modbus.Channels
         private readonly EventWaitHandle readEventWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private bool isRunningReceive = false;
 
+        /// <summary>
+        /// 리소스 해제 여부
+        /// </summary>
         public override bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// 채널 설명
+        /// </summary>
         public override string Description { get; protected set; }
 
+        /// <summary>
+        /// 소멸자
+        /// </summary>
         ~SerialPortModbusChannel()
         {
             Dispose();
         }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public override void Dispose()
         {
             IsDisposed = true;
@@ -167,25 +218,14 @@ namespace VagabondK.Modbus.Channels
 
             this.serialDevice = serialDevice;
 
-            this.serialDevice.BaudRate = BaudRate;
-            this.serialDevice.DataBits = DataBits;
-            this.serialDevice.StopBits = StopBitCount;
+            this.serialDevice.BaudRate = (uint)BaudRate;
+            this.serialDevice.DataBits = (ushort)DataBits;
+            this.serialDevice.StopBits = StopBits;
             this.serialDevice.Parity = Parity;
             this.serialDevice.Handshake = Handshake;
-            try
-            {
-                this.serialDevice.IsDataTerminalReadyEnabled = IsDataTerminalReadyEnabled;
-            }
-            catch { }
-            try
-            {
-                this.serialDevice.IsRequestToSendEnabled = IsRequestToSendEnabled;
-            }
-            catch { }
 
             dataReader = new DataReader(this.serialDevice.InputStream)
             {
-                //InputStreamOptions = InputStreamOptions.ReadAhead
                 InputStreamOptions = InputStreamOptions.Partial
             };
             dataWriter = new DataWriter(this.serialDevice.OutputStream);
@@ -291,6 +331,10 @@ namespace VagabondK.Modbus.Channels
 
         }
 
+        /// <summary>
+        /// 바이트 배열 쓰기
+        /// </summary>
+        /// <param name="bytes">바이트 배열</param>
         public override void Write(byte[] bytes)
         {
             lock (writeLock)
@@ -314,6 +358,11 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 1 바이트 읽기
+        /// </summary>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트</returns>
         public override byte Read(int timeout)
         {
             lock (readLock)
@@ -322,6 +371,12 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 여러 개의 바이트 읽기
+        /// </summary>
+        /// <param name="count">읽을 개수</param>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> Read(uint count, int timeout)
         {
             lock (readLock)
@@ -333,6 +388,10 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 채널에 남아있는 모든 바이트 읽기
+        /// </summary>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> ReadAllRemain()
         {
             lock (readLock)

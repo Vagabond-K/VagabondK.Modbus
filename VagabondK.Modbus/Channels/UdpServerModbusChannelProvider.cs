@@ -10,24 +10,48 @@ using VagabondK.Modbus.Logging;
 
 namespace VagabondK.Modbus.Channels
 {
+    /// <summary>
+    /// UDP 서버 기반 Modbus 채널 공급자
+    /// </summary>
     public class UdpServerModbusChannelProvider : ModbusChannelProvider
     {
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        public UdpServerModbusChannelProvider() : this(502) { }
+
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="port">UDP 메시지 수신 포트</param>
         public UdpServerModbusChannelProvider(int port)
         {
             Port = port;
             udpClient = new UdpClient(port);
         }
 
+        /// <summary>
+        /// UDP 메시지 수신 포트
+        /// </summary>
         public int Port { get; }
 
         private readonly UdpClient udpClient;
         private readonly Dictionary<string, WeakReference<UdpClientModbusChannel>> channels = new Dictionary<string, WeakReference<UdpClientModbusChannel>>();
         private CancellationTokenSource cancellationTokenSource;
 
+        /// <summary>
+        /// 수신된 UDP 메시지의 원격 엔드포인트 기반 채널 목록
+        /// </summary>
         public override IReadOnlyList<ModbusChannel> Channels { get => channels.Values.Select(w => w.TryGetTarget(out var channel) ? channel : null).Where(c => c != null).ToList(); }
 
+        /// <summary>
+        /// 채널 공급자 설명
+        /// </summary>
         public override string Description { get => udpClient.Client?.LocalEndPoint?.ToString(); }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public override void Dispose()
         {
             lock (this)
@@ -40,6 +64,9 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// UDP 메시지 수신 시작
+        /// </summary>
         public override void Start()
         {
             lock (this)
@@ -77,6 +104,9 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// UDP 메시지 수신 정지
+        /// </summary>
         public override void Stop()
         {
             lock (this)

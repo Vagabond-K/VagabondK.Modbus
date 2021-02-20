@@ -6,8 +6,15 @@ using System.Text;
 
 namespace VagabondK.Modbus.Data
 {
+    /// <summary>
+    /// 논리값 Modbus 데이터셋
+    /// </summary>
     public class ModbusBooleans : ModbusDataSet<bool, bool>
     {
+        /// <summary>
+        /// 데이터셋 열거자 가져오기
+        /// </summary>
+        /// <returns>데이터셋 열거</returns>
         public override IEnumerator<KeyValuePair<ushort, bool>> GetEnumerator()
         {
             foreach (ModbusBooleanDataBlock dataBlock in DataBlocks)
@@ -18,6 +25,11 @@ namespace VagabondK.Modbus.Data
             }
         }
 
+        /// <summary>
+        /// 주소 할당
+        /// </summary>
+        /// <param name="startAddress">시작 주소</param>
+        /// <param name="data">데이터 배열</param>
         public void Allocate(ushort startAddress, bool[] data)
         {
             AllocateCore(new ModbusBooleanDataBlock(startAddress, data));

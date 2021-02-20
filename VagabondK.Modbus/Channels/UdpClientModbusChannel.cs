@@ -10,14 +10,34 @@ using VagabondK.Modbus.Serialization;
 
 namespace VagabondK.Modbus.Channels
 {
+    /// <summary>
+    /// UCP 소켓 기반 Modbus 채널
+    /// </summary>
     public class UdpClientModbusChannel : ModbusChannel
     {
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="host">호스트</param>
+        public UdpClientModbusChannel(string host) : this(host, 502) { }
+
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="host">호스트</param>
+        /// <param name="remotePort">원격 포트</param>
         public UdpClientModbusChannel(string host, int remotePort)
         {
             Host = host;
             RemotePort = remotePort;
         }
 
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="host">호스트</param>
+        /// <param name="remotePort">원격 포트</param>
+        /// <param name="localPort">로컬 포트</param>
         public UdpClientModbusChannel(string host, int remotePort, int localPort)
         {
             Host = host;
@@ -25,8 +45,19 @@ namespace VagabondK.Modbus.Channels
             LocalPort = localPort;
         }
 
+        /// <summary>
+        /// 호스트
+        /// </summary>
         public string Host { get; }
+
+        /// <summary>
+        /// 원격 포트
+        /// </summary>
         public int RemotePort { get; }
+
+        /// <summary>
+        /// 로컬 포트
+        /// </summary>
         public int? LocalPort { get; }
 
         private UdpClient udpClient = null;
@@ -37,15 +68,27 @@ namespace VagabondK.Modbus.Channels
         private readonly EventWaitHandle readEventWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private bool isRunningReceive = false;
 
+        /// <summary>
+        /// 리소스 헤제 여부
+        /// </summary>
         public override bool IsDisposed { get; protected set; }
 
+        /// <summary>
+        /// 채널 설명
+        /// </summary>
         public override string Description { get; protected set; }
 
+        /// <summary>
+        /// 소멸자
+        /// </summary>
         ~UdpClientModbusChannel()
         {
             Dispose();
         }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public override void Dispose()
         {
             if (!IsDisposed)
@@ -135,6 +178,10 @@ namespace VagabondK.Modbus.Channels
                 return null;
         }
 
+        /// <summary>
+        /// 바이트 배열 쓰기
+        /// </summary>
+        /// <param name="bytes">바이트 배열</param>
         public override void Write(byte[] bytes)
         {
             CheckConnection();
@@ -153,6 +200,11 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 1 바이트 읽기
+        /// </summary>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트</returns>
         public override byte Read(int timeout)
         {
             lock (readLock)
@@ -161,6 +213,12 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 여러 개의 바이트 읽기
+        /// </summary>
+        /// <param name="count">읽을 개수</param>
+        /// <param name="timeout">제한시간(밀리초)</param>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> Read(uint count, int timeout)
         {
             lock (readLock)
@@ -172,6 +230,10 @@ namespace VagabondK.Modbus.Channels
             }
         }
 
+        /// <summary>
+        /// 채널에 남아있는 모든 바이트 읽기
+        /// </summary>
+        /// <returns>읽은 바이트 열거</returns>
         public override IEnumerable<byte> ReadAllRemain()
         {
             lock (readLock)

@@ -7,8 +7,16 @@ using System.Text;
 
 namespace VagabondK.Modbus.Data
 {
+    /// <summary>
+    /// Modbus 데이터셋
+    /// </summary>
+    /// <typeparam name="TData">데이터 형식</typeparam>
+    /// <typeparam name="TRawData">Raw 데이터 형식</typeparam>
     public abstract class ModbusDataSet<TData, TRawData> : IEnumerable<KeyValuePair<ushort, TData>>
     {
+        /// <summary>
+        /// 생성자
+        /// </summary>
         protected ModbusDataSet()
         {
             DataBlocks = new ReadOnlyCollection<ModbusDataBlock<TData, TRawData>>(dataBlocks);
@@ -18,8 +26,14 @@ namespace VagabondK.Modbus.Data
         private readonly List<ModbusDataBlock<TData, TRawData>> dataBlocks = new List<ModbusDataBlock<TData, TRawData>>();
         private bool autoAllocation = true;
 
+        /// <summary>
+        /// 데이터 블록 목록
+        /// </summary>
         public IReadOnlyList<IModbusDataBlock<TData, TRawData>> DataBlocks { get; }
 
+        /// <summary>
+        /// 자동 주소 할당 여부
+        /// </summary>
         public bool AutoAllocation
         {
             get => autoAllocation;
@@ -35,6 +49,11 @@ namespace VagabondK.Modbus.Data
             }
         }
 
+        /// <summary>
+        /// 특정 주소의 데이터 가져오기
+        /// </summary>
+        /// <param name="address">데이터 주소</param>
+        /// <returns>데이터</returns>
         public TData this[ushort address]
         {
             get
@@ -65,13 +84,19 @@ namespace VagabondK.Modbus.Data
             }
         }
 
-        public IEnumerable<TData> GetData(ushort address, ushort dataCount)
+        /// <summary>
+        /// 연속 데이터 가져오기
+        /// </summary>
+        /// <param name="startAddress">시작 주소</param>
+        /// <param name="dataCount">데이터 개수</param>
+        /// <returns></returns>
+        public IEnumerable<TData> GetData(ushort startAddress, ushort dataCount)
         {
             if (dataCount == 0) return new TData[0];
 
             lock (this)
             {
-                dummyDataBlock.StartAddress = address;
+                dummyDataBlock.StartAddress = startAddress;
                 var index = dataBlocks.BinarySearch(dummyDataBlock, ModbusStartAddressComparer<TData, TRawData>.Instance);
                 ModbusDataBlock<TData, TRawData> dataBlock;
                 if (index >= 0)
@@ -87,7 +112,7 @@ namespace VagabondK.Modbus.Data
                     if (index >= 0 && index < dataBlocks.Count)
                     {
                         dataBlock = dataBlocks[index];
-                        var skipCount = (address - dataBlock.StartAddress);
+                        var skipCount = (startAddress - dataBlock.StartAddress);
                         if (dataBlock.Count < skipCount + dataCount)
                             throw new ModbusException(ModbusExceptionCode.IllegalDataAddress);
                         return dataBlock.Skip(skipCount).Take(dataCount);
@@ -98,18 +123,23 @@ namespace VagabondK.Modbus.Data
             }
         }
 
+        /// <summary>
+        /// 연속 데이터 설정하기
+        /// </summary>
+        /// <param name="startAddress">시작 주소</param>
+        /// <param name="values">데이터 배열</param>
         public void SetData(ushort startAddress, TData[] values)
         {
             SetDataBlock(CreateDataBlock(startAddress, values));
         }
 
-        internal IEnumerable<TRawData> GetRawDataCore(ushort address, int rawDataCount)
+        internal IEnumerable<TRawData> GetRawDataCore(ushort startAddress, int rawDataCount)
         {
             if (rawDataCount == 0) return new TRawData[0];
 
             lock (this)
             {
-                dummyDataBlock.StartAddress = address;
+                dummyDataBlock.StartAddress = startAddress;
                 var index = dataBlocks.BinarySearch(dummyDataBlock, ModbusStartAddressComparer<TData, TRawData>.Instance);
                 ModbusDataBlock<TData, TRawData> dataBlock;
                 if (index >= 0)
@@ -125,7 +155,7 @@ namespace VagabondK.Modbus.Data
                     if (index >= 0 && index < dataBlocks.Count)
                     {
                         dataBlock = dataBlocks[index];
-                        var skipCount = (address - dataBlock.StartAddress) * dataBlock.NumberOfUnit;
+                        var skipCount = (startAddress - dataBlock.StartAddress) * dataBlock.NumberOfUnit;
                         if (dataBlock.rawData.Length < skipCount + rawDataCount)
                             throw new ModbusException(ModbusExceptionCode.IllegalDataAddress);
                         return dataBlock.rawData.Skip(skipCount).Take(rawDataCount);
@@ -136,14 +166,18 @@ namespace VagabondK.Modbus.Data
             }
         }
 
-        public void Remove(ushort address, ushort count)
+        /// <summary>
+        /// 연속 데이터 삭제하기
+        /// </summary>
+        /// <param name="startAddress">시작 주소</param>
+        /// <param name="count">개수</param>
+        public void Remove(ushort startAddress, ushort count)
         {
             if (count == 0) return;
 
             lock (this)
             {
-                ushort startAddress = address;
-                ushort endAddress = (ushort)(address + count - 1);
+                ushort endAddress = (ushort)(startAddress + count - 1);
 
                 int startIndex = -1;
                 int endIndex = -1;
@@ -302,37 +336,42 @@ namespace VagabondK.Modbus.Data
             }
         }
 
+        /// <summary>
+        /// 데이터셋 열거자 가져오기
+        /// </summary>
+        /// <returns>데이터셋 열거</returns>
         public abstract IEnumerator<KeyValuePair<ushort, TData>> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        class ModbusStartAddressComparer<TData, TRawData> : IComparer<ModbusDataBlock<TData, TRawData>>
-        {
-            public static ModbusStartAddressComparer<TData, TRawData> Instance { get; } = new ModbusStartAddressComparer<TData, TRawData>();
-            public int Compare(ModbusDataBlock<TData, TRawData> x, ModbusDataBlock<TData, TRawData> y) => x.StartAddress.CompareTo(y.StartAddress);
-        }
-
-        class ModbusEndAddressComparer<TData, TRawData> : IComparer<ModbusDataBlock<TData, TRawData>>
-        {
-            public static ModbusEndAddressComparer<TData, TRawData> Instance { get; } = new ModbusEndAddressComparer<TData, TRawData>();
-            public int Compare(ModbusDataBlock<TData, TRawData> x, ModbusDataBlock<TData, TRawData> y) => x.EndAddress.CompareTo(y.EndAddress);
-        }
-
-
-        class DummyDataBlock<TData, TRawData> : ModbusDataBlock<TData, TRawData>
-        {
-            public override ushort StartAddress { get; set; }
-
-            public override ushort EndAddress { get; set; }
-
-            public override ushort Count { get => (ushort)(EndAddress - StartAddress + 1); }
-
-
-            public override int NumberOfUnit => throw new NotImplementedException();
-
-            public override TData this[ushort address] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-            public override IEnumerator<TData> GetEnumerator() => throw new NotImplementedException();
-        }
     }
+
+    class ModbusStartAddressComparer<TData, TRawData> : IComparer<ModbusDataBlock<TData, TRawData>>
+    {
+        public static ModbusStartAddressComparer<TData, TRawData> Instance { get; } = new ModbusStartAddressComparer<TData, TRawData>();
+        public int Compare(ModbusDataBlock<TData, TRawData> x, ModbusDataBlock<TData, TRawData> y) => x.StartAddress.CompareTo(y.StartAddress);
+    }
+
+    class ModbusEndAddressComparer<TData, TRawData> : IComparer<ModbusDataBlock<TData, TRawData>>
+    {
+        public static ModbusEndAddressComparer<TData, TRawData> Instance { get; } = new ModbusEndAddressComparer<TData, TRawData>();
+        public int Compare(ModbusDataBlock<TData, TRawData> x, ModbusDataBlock<TData, TRawData> y) => x.EndAddress.CompareTo(y.EndAddress);
+    }
+
+
+    class DummyDataBlock<TData, TRawData> : ModbusDataBlock<TData, TRawData>
+    {
+        public override ushort StartAddress { get; set; }
+
+        public override ushort EndAddress { get; set; }
+
+        public override ushort Count { get => (ushort)(EndAddress - StartAddress + 1); }
+
+
+        public override int NumberOfUnit => throw new NotImplementedException();
+
+        public override TData this[ushort address] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public override IEnumerator<TData> GetEnumerator() => throw new NotImplementedException();
+    }
+
 }

@@ -7,6 +7,9 @@ using VagabondK.Modbus.Channels;
 
 namespace VagabondK.Modbus.Serialization
 {
+    /// <summary>
+    /// Modbus TCP Serializer
+    /// </summary>
     public sealed class ModbusTcpSerializer : ModbusSerializer
     {
         private ushort transactionID = 0;

@@ -10,16 +10,28 @@ using VagabondK.Modbus.Serialization;
 
 namespace VagabondK.Modbus
 {
+    /// <summary>
+    /// Modbus 슬레이브 서비스
+    /// </summary>
     public class ModbusSlaveService : IDisposable, IEnumerable<KeyValuePair<ushort, ModbusSlave>>
     {
-        public ModbusSlaveService()
-        {
-        }
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        public ModbusSlaveService() { }
 
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="channel">Modbus 채널</param>
         public ModbusSlaveService(IModbusChannel channel) : this(new IModbusChannel[] { channel })
         {
         }
 
+        /// <summary>
+        /// 생성자
+        /// </summary>
+        /// <param name="channels">Modbus 채널 목록</param>
         public ModbusSlaveService(IEnumerable<IModbusChannel> channels)
         {
             foreach (var channel in channels)
@@ -29,6 +41,11 @@ namespace VagabondK.Modbus
         private ModbusSerializer serializer;
         private readonly Dictionary<ushort, ModbusSlave> modbusSlaves = new Dictionary<ushort, ModbusSlave>();
 
+        /// <summary>
+        /// Modbus 슬레이브 가져오기
+        /// </summary>
+        /// <param name="slaveAddress">슬레이브 주소</param>
+        /// <returns>Modbus 슬레이브</returns>
         public ModbusSlave this[ushort slaveAddress]
         {
             get => modbusSlaves[slaveAddress];
@@ -41,11 +58,34 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// Modbus 슬레이브 주소 목록
+        /// </summary>
         public ICollection<ushort> SlaveAddresses { get => modbusSlaves.Keys; }
+
+        /// <summary>
+        /// Modbus 슬레이브 목록
+        /// </summary>
         public ICollection<ModbusSlave> ModbusSlaves { get => modbusSlaves.Values; }
+
+        /// <summary>
+        /// Modbus 슬레이브 포함 여부
+        /// </summary>
+        /// <param name="slaveAddress">Modbus 슬레이브 주소</param>
+        /// <returns></returns>
         public bool ContainsSlaveAddress(ushort slaveAddress) => modbusSlaves.ContainsKey(slaveAddress);
+
+        /// <summary>
+        /// Modbus 슬레이브 가져오기
+        /// </summary>
+        /// <param name="slaveAddress">슬레이브 주소</param>
+        /// <param name="modbusSlave">Modbus 슬레이브</param>
+        /// <returns>Modbus 슬레이브 포함 여부</returns>
         public bool TryGetValue(ushort slaveAddress, out ModbusSlave modbusSlave) => modbusSlaves.TryGetValue(slaveAddress, out modbusSlave);
 
+        /// <summary>
+        /// Modbus Serializer
+        /// </summary>
         public ModbusSerializer Serializer
         {
             get
@@ -70,6 +110,9 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// Modbus Logger
+        /// </summary>
         public IModbusLogger Logger { get; set; }
 
         private void OnReceivedUnrecognizedMessage(object sender, UnrecognizedEventArgs e)
@@ -80,9 +123,15 @@ namespace VagabondK.Modbus
         private readonly Dictionary<ModbusChannel, ChannelTask> channelTasks = new Dictionary<ModbusChannel, ChannelTask>();
         private readonly List<IModbusChannel> channels = new List<IModbusChannel>();
 
+        /// <summary>
+        /// Modbus 채널 목록
+        /// </summary>
         public IReadOnlyList<IModbusChannel> Channels { get => channelTasks.Keys.ToList(); }
 
-
+        /// <summary>
+        /// Modbus 채널 추가
+        /// </summary>
+        /// <param name="channel">Modbus 채널</param>
         public void AddChannel(IModbusChannel channel)
         {
             lock (channels)
@@ -101,6 +150,10 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// Modbus 채널 제거
+        /// </summary>
+        /// <param name="channel">Modbus 채널</param>
         public void RemoveChannel(IModbusChannel channel)
         {
             lock (channels)
@@ -133,6 +186,9 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public void Dispose()
         {
             lock (channels)
@@ -216,24 +272,63 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// 슬레이브 주소 검증 이벤트
+        /// </summary>
         public event EventHandler<ValidatingSlaveAddressEventArgs> ValidatingSlaveAddress;
+        /// <summary>
+        /// Coil 읽기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestReadBooleanEventArgs> RequestReadCoils;
+        /// <summary>
+        /// Discrete Input 읽기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestReadBooleanEventArgs> RequestReadDiscreteInputs;
+        /// <summary>
+        /// Holding Register 읽기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestReadRegisterEventArgs> RequestReadHoldingRegisters;
+        /// <summary>
+        /// Input Register 읽기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestReadRegisterEventArgs> RequestReadInputRegisters;
+        /// <summary>
+        /// Coil 쓰기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestWriteCoilEventArgs> RequestWriteCoil;
+        /// <summary>
+        /// Holding Register 쓰기 요청 이벤트
+        /// </summary>
         public event EventHandler<RequestWriteHoldingRegisterEventArgs> RequestWriteHoldingRegister;
 
+        /// <summary>
+        /// 슬레이브 주소 검증
+        /// </summary>
         protected virtual void OnValidatingSlaveAddress(ValidatingSlaveAddressEventArgs e)
             => e.IsValid = modbusSlaves.Count == 0 && e.SlaveAddress == 1 || modbusSlaves.ContainsKey(e.SlaveAddress);
+        /// <summary>
+        /// Coil 읽기 요청 처리
+        /// </summary>
         protected virtual void OnRequestReadCoils(RequestReadBooleanEventArgs e) 
             => e.Values = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.Coils != null ? modbusSlave.Coils.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+        /// <summary>
+        /// Discrete Input 읽기 요청 처리
+        /// </summary>
         protected virtual void OnRequestReadDiscreteInputs(RequestReadBooleanEventArgs e)
             => e.Values = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.DiscreteInputs != null ? modbusSlave.DiscreteInputs.GetData(e.Address, e.Length) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+        /// <summary>
+        /// Holding Register 읽기 요청 처리
+        /// </summary>
         protected virtual void OnRequestReadHoldingRegisters(RequestReadRegisterEventArgs e)
             => e.Bytes = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.HoldingRegisters != null ? modbusSlave.HoldingRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+        /// <summary>
+        /// Input Register 읽기 요청 처리
+        /// </summary>
         protected virtual void OnRequestReadInputRegisters(RequestReadRegisterEventArgs e)
             => e.Bytes = modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.InputRegisters != null ? modbusSlave.InputRegisters.GetRawData(e.Address, e.Length * 2) : throw new ModbusException(ModbusExceptionCode.IllegalFunction);
+        /// <summary>
+        /// Coil 쓰기 요청 처리
+        /// </summary>
         protected virtual void OnRequestWriteCoil(RequestWriteCoilEventArgs e)
         {
             if (modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.Coils != null)
@@ -241,6 +336,9 @@ namespace VagabondK.Modbus
             else
                 throw new ModbusException(ModbusExceptionCode.IllegalFunction);
         }
+        /// <summary>
+        /// Holding Register 쓰기 요청 처리
+        /// </summary>
         protected virtual void OnRequestWriteHoldingRegister(RequestWriteHoldingRegisterEventArgs e)
         {
             if (modbusSlaves.TryGetValue(e.SlaveAddress, out var modbusSlave) && modbusSlave.HoldingRegisters != null)
@@ -306,6 +404,10 @@ namespace VagabondK.Modbus
             return eventArgs;
         }
 
+        /// <summary>
+        /// Modbus 슬레이브 목록 열거
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<KeyValuePair<ushort, ModbusSlave>> GetEnumerator() => modbusSlaves.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -358,6 +460,9 @@ namespace VagabondK.Modbus
         }
     }
 
+    /// <summary>
+    /// 슬레이브 주소 검증 이벤트 매개변수
+    /// </summary>
     public sealed class ValidatingSlaveAddressEventArgs : EventArgs
     {
         internal ValidatingSlaveAddressEventArgs(ushort slaveAddress, ModbusChannel channel)
@@ -366,11 +471,25 @@ namespace VagabondK.Modbus
             Channel = channel;
         }
 
+        /// <summary>
+        /// 슬레이브 주소
+        /// </summary>
         public ushort SlaveAddress { get; }
+
+        /// <summary>
+        /// Modbus 채널
+        /// </summary>
         public ModbusChannel Channel { get; }
+
+        /// <summary>
+        /// 유효한 슬레이브 주소 여부
+        /// </summary>
         public bool IsValid { get; set; }
     }
 
+    /// <summary>
+    /// Modbus 요청 발생 이벤트 매개변수
+    /// </summary>
     public abstract class ModbusRequestEventArgs : EventArgs
     {
         internal ModbusRequestEventArgs(ModbusRequest request, ModbusChannel channel)
@@ -381,29 +500,63 @@ namespace VagabondK.Modbus
 
         internal ModbusRequest request;
 
+        /// <summary>
+        /// 슬레이브 주소
+        /// </summary>
         public byte SlaveAddress { get => request.SlaveAddress; }
+
+        /// <summary>
+        /// 데이터 주소
+        /// </summary>
         public ushort Address { get => request.Address; }
+
+        /// <summary>
+        /// Modbus 채널
+        /// </summary>
         public ModbusChannel Channel { get; }
     }
 
+    /// <summary>
+    /// 논리값(Coil, Discrete Input) 읽기 요청 발생 이벤트 매개변수
+    /// </summary>
     public sealed class RequestReadBooleanEventArgs : ModbusRequestEventArgs
     {
         internal RequestReadBooleanEventArgs(ModbusReadRequest request, ModbusChannel channel)
             : base(request, channel) { }
 
+        /// <summary>
+        /// 요청 길이
+        /// </summary>
         public ushort Length { get => request.Length; }
+
+        /// <summary>
+        /// 응답할 논리값(Coil, Discrete Input) 목록
+        /// </summary>
         public IEnumerable<bool> Values { get; set; }
     }
 
+    /// <summary>
+    /// 레지스터(Holding, Input) 읽기 요청 발생 이벤트 매개변수
+    /// </summary>
     public sealed class RequestReadRegisterEventArgs : ModbusRequestEventArgs
     {
         internal RequestReadRegisterEventArgs(ModbusReadRequest request, ModbusChannel channel)
             : base(request, channel) { }
 
+        /// <summary>
+        /// 요청 길이
+        /// </summary>
         public ushort Length { get => request.Length; }
+
+        /// <summary>
+        /// 응답할 레지스터(Holding, Input)의 Raw 바이트 목록
+        /// </summary>
         public IEnumerable<byte> Bytes { get; set; }
     }
 
+    /// <summary>
+    /// Coil 쓰기 요청 발생 이벤트 매개변수
+    /// </summary>
     public sealed class RequestWriteCoilEventArgs : ModbusRequestEventArgs
     {
         internal RequestWriteCoilEventArgs(ModbusWriteCoilRequest request, ModbusChannel channel)
@@ -412,9 +565,15 @@ namespace VagabondK.Modbus
             Values = request.Values;
         }
 
+        /// <summary>
+        /// 받은 논리값(Coil, Discrete Input) 목록
+        /// </summary>
         public IReadOnlyList<bool> Values { get; }
     }
 
+    /// <summary>
+    /// Holding Register 쓰기 요청 발생 이벤트 매개변수
+    /// </summary>
     public sealed class RequestWriteHoldingRegisterEventArgs : ModbusRequestEventArgs
     {
         internal RequestWriteHoldingRegisterEventArgs(ModbusWriteHoldingRegisterRequest request, ModbusChannel channel)
@@ -425,8 +584,14 @@ namespace VagabondK.Modbus
 
         private IReadOnlyList<ushort> registers;
 
+        /// <summary>
+        /// 받은 레지스터(Holding, Input)의 Raw 바이트 목록
+        /// </summary>
         public IReadOnlyList<byte> Bytes { get; }
 
+        /// <summary>
+        /// 받은 레지스터(Holding, Input) 목록
+        /// </summary>
         public IReadOnlyList<ushort> Registers
         {
             get

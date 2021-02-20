@@ -83,7 +83,7 @@ namespace VagabondK.Modbus
     }
 
     /// <summary>
-    /// Modbus 예외 코드. 각 코드별 주석은 https://en.wikipedia.org/wiki/Modbus 에서 발췌.
+    /// Modbus Exception 코드. 각 코드별 주석은 https://en.wikipedia.org/wiki/Modbus 에서 발췌.
     /// </summary>
     public enum ModbusExceptionCode : byte
     {

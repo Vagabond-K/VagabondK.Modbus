@@ -9,8 +9,14 @@ using VagabondK.Modbus.Serialization;
 
 namespace VagabondK.Modbus
 {
+    /// <summary>
+    /// Modbus 마스터
+    /// </summary>
     public class ModbusMaster : IDisposable
     {
+        /// <summary>
+        /// 리소스 해제
+        /// </summary>
         public void Dispose()
         {
             if (serializer != null)
@@ -21,6 +27,9 @@ namespace VagabondK.Modbus
         private ModbusSerializer serializer;
         private IModbusChannel channel;
 
+        /// <summary>
+        /// Modbus Serializer
+        /// </summary>
         public ModbusSerializer Serializer
         {
             get
@@ -44,6 +53,9 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// Modbus 채널
+        /// </summary>
         public IModbusChannel Channel
         {
             get => channel;
@@ -56,10 +68,19 @@ namespace VagabondK.Modbus
             }
         }
 
+        /// <summary>
+        /// 응답 제한시간(밀리초)
+        /// </summary>
         public int Timeout { get; set; } = 1000;
 
+        /// <summary>
+        /// Modbus Exception에 대한 예외 발생 여부
+        /// </summary>
         public bool ThrowsModbusExceptions { get; set; } = true;
 
+        /// <summary>
+        /// Modbus Logger
+        /// </summary>
         public IModbusLogger Logger { get; set; }
 
         private void OnReceivedUnrecognizedMessage(object sender, UnrecognizedEventArgs e)
@@ -67,9 +88,25 @@ namespace VagabondK.Modbus
             Logger?.Log(new UnrecognizedErrorLog(e.Channel, e.UnrecognizedMessage.ToArray()));
         }
 
+        /// <summary>
+        /// ModbusChannelProvider로 생성된 Modbus 채널 중 하나를 선택
+        /// </summary>
+        /// <param name="channels">생성된 Modbus 채널 목록</param>
+        /// <returns></returns>
         protected virtual ModbusChannel OnSelectChannel(IReadOnlyList<ModbusChannel> channels) => channels?.LastOrDefault();
 
+        /// <summary>
+        /// Modbus 요청하기
+        /// </summary>
+        /// <param name="request">Modbus 요청</param>
+        /// <returns>Modbus 응답</returns>
         public ModbusResponse Request(ModbusRequest request) => Request(request, Timeout);
+        /// <summary>
+        /// Modbus 요청하기
+        /// </summary>
+        /// <param name="request">Modbus 요청</param>
+        /// <param name="timeout">응답 제한시간(밀리초)</param>
+        /// <returns>Modbus 응답</returns>
         public ModbusResponse Request(ModbusRequest request, int timeout)
         {
             ModbusChannel channel = null;

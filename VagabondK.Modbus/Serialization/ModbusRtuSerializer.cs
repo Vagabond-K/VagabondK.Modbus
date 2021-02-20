@@ -5,6 +5,9 @@ using VagabondK.Modbus.Channels;
 
 namespace VagabondK.Modbus.Serialization
 {
+    /// <summary>
+    /// Modbus RTU Serializer
+    /// </summary>
     public sealed class ModbusRtuSerializer : ModbusSerializer
     {
         private readonly List<byte> errorBuffer = new List<byte>();
