@@ -7,18 +7,20 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">LGPL-2.1-only</license>
     <icon>nugetIcon.png</icon>
-    <projectUrl>https://github.com/Vagabond-K/VagabondK.Modbus</projectUrl>
+    <projectUrl>https://github.com/Vagabond-K/VagabondK.Modbus/tree/master/VagabondK.Modbus.SerialPortChannel</projectUrl>
     <description>Vagabond K의 Modbus 라이브러리를 시리얼 통신으로 사용할 때 필요한 어셈블리입니다.</description>
-    <repository type="git" url="https://github.com/Vagabond-K/VagabondK.Modbus" />
+    <repository type="git" url="https://github.com/Vagabond-K/VagabondK.Modbus/tree/master/VagabondK.Modbus.SerialPortChannel" />
     <dependencies>
       <group targetFramework=".NETStandard2.0">
         <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="SerialPortStream" version="2.2.2" exclude="Build,Analyzers" />
       </group>
       <group targetFramework=".NETFramework4.6.1">
         <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
       </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.IO.Ports" version="5.0.0" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="UAP10.0.16299">
         <dependency id="VagabondK.Modbus" version="1.0.0" exclude="Build,Analyzers" />
